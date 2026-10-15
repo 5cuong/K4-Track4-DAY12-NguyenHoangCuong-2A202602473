@@ -2,3 +2,5 @@ data/*.csv
 work/
 __pycache__/
 *.pyc
+viz/lab_models.js
+viz/lab_data.js

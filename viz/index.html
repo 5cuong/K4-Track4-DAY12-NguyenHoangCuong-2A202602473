@@ -1,0 +1,207 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Bài lab Day 12 · Phát lại và kiểm thử vòng kín</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Spectral:ital,wght@0,500;1,500&display=swap">
+<style>
+/* Layout: one-screen app. The 3D street fills the viewport; a chapter rail floats left; a transport bar floats bottom; a HUD top-right.
+   Colour code (same family as "Vòng lặp mô phỏng"): red = our car (ego), blue = what was recorded (log, scan), teal = the planner's plan,
+   purple = other agents' behaviour, orange = a collision, gold = people and labels, green = safe / passed. */
+:root {
+  --bg: #e8ecf0; --panel: rgba(250, 251, 252, .92); --panel-solid: #fafbfc; --ink: #17202b; --ink-2: #485364; --ink-3: #788395;
+  --line: #d3d9e1; --chip: #e3e8ee; --focus: #1f8fb5;
+  --blue: #1f6fa5; --teal: #138a74; --purple: #7b58a6; --gold: #b7750c; --green: #3f8f2a; --grey: #8a929c; --hit: #e2580f; --amber: #c99400; --ego: #c8343a;
+  --sc-bg: #e3e8ed; --sc-ground: #d3dae0; --sc-road: #9ea8b3; --sc-mark: #fbfcfd; --sc-walk: #e2e7ec; --sc-yel: #d9a81c;
+  --sc-bldg: #eef1f4; --sc-bldg2: #d9e0e7; --sc-edge: #97a3b1; --sc-glass: #a8c6da; --sc-tree: #a9c39a; --sc-trunk: #9a8d80;
+  --sc-sky: #f4f7fa; --sc-gnd-light: #c9cfd6; --sc-cab: #4b5867; --sc-wheel: #2b323b; --sc-off: #59636f;
+  --car-1: #9fb3c8; --car-2: #c4cdd6; --car-3: #8e99a6; --car-4: #b7c3cf; --car-dark: #2d343d; --bus: #6f93b3; --adv: #7b58a6; --ped: #cf7f12;
+  --scan: #1f6fa5; --scan-live: #e0a400; --plan: #138a74;
+  --f-display: "Spectral", "Iowan Old Style", Georgia, serif;
+  --f-ui: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1116; --panel: rgba(18, 22, 28, .92); --panel-solid: #12161c; --ink: #ece9e3; --ink-2: #b4b2ab; --ink-3: #8d8b85;
+  --line: #2a3039; --chip: #1f252d; --focus: #58c4dd;
+  --blue: #58c4dd; --teal: #5cd0b3; --purple: #a98bd0; --gold: #f0ac5f; --green: #83c167; --grey: #888c94; --hit: #ff8a3d; --amber: #f7d96f; --ego: #ff5a5f;
+  --sc-bg: #0d1015; --sc-ground: #13171c; --sc-road: #1f242b; --sc-mark: #aab0b8; --sc-walk: #1a1f25; --sc-yel: #b68a1a;
+  --sc-bldg: #1a1f26; --sc-bldg2: #20262e; --sc-edge: #3c6878; --sc-glass: #23404f; --sc-tree: #2c4a35; --sc-trunk: #3a332c;
+  --sc-sky: #33404e; --sc-gnd-light: #0b0d10; --sc-cab: #11161c; --sc-wheel: #08090b; --sc-off: #2a3038;
+  --car-1: #4c5d70; --car-2: #5d6773; --car-3: #3f4955; --car-4: #687380; --car-dark: #0f1216; --bus: #3d5f7f; --adv: #a98bd0; --ped: #f0ac5f;
+  --scan: #58c4dd; --scan-live: #f7d96f; --plan: #5cd0b3;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0e1116; --panel: rgba(18, 22, 28, .92); --panel-solid: #12161c; --ink: #ece9e3; --ink-2: #b4b2ab; --ink-3: #8d8b85;
+  --line: #2a3039; --chip: #1f252d; --focus: #58c4dd;
+  --blue: #58c4dd; --teal: #5cd0b3; --purple: #a98bd0; --gold: #f0ac5f; --green: #83c167; --grey: #888c94; --hit: #ff8a3d; --amber: #f7d96f; --ego: #ff5a5f;
+  --sc-bg: #0d1015; --sc-ground: #13171c; --sc-road: #1f242b; --sc-mark: #aab0b8; --sc-walk: #1a1f25; --sc-yel: #b68a1a;
+  --sc-bldg: #1a1f26; --sc-bldg2: #20262e; --sc-edge: #3c6878; --sc-glass: #23404f; --sc-tree: #2c4a35; --sc-trunk: #3a332c;
+  --sc-sky: #33404e; --sc-gnd-light: #0b0d10; --sc-cab: #11161c; --sc-wheel: #08090b; --sc-off: #2a3038;
+  --car-1: #4c5d70; --car-2: #5d6773; --car-3: #3f4955; --car-4: #687380; --car-dark: #0f1216; --bus: #3d5f7f; --adv: #a98bd0; --ped: #f0ac5f;
+  --scan: #58c4dd; --scan-live: #f7d96f; --plan: #5cd0b3;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-ui); overflow: hidden; }
+* { box-sizing: border-box; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.c-ego { color: var(--ego); } .c-blue { color: var(--blue); } .c-teal { color: var(--teal); } .c-purple { color: var(--purple); }
+.c-hit { color: var(--hit); } .c-gold { color: var(--gold); } .c-green { color: var(--green); } .c-grey { color: var(--grey); } .c-amber { color: var(--amber); }
+.k { font-family: var(--f-mono); font-size: .88em; padding: 0 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--chip); }
+
+.app { position: relative; height: 100%; }
+#stage { position: absolute; inset: 0; }
+#stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+#stage canvas:active { cursor: grabbing; }
+#labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lbl { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font: 600 11px/1.2 var(--f-mono); letter-spacing: .02em;
+  padding: 2px 6px; border-radius: 4px; background: var(--panel-solid); color: var(--ink); border: 1px solid var(--line); }
+.lbl.ego { border-color: var(--ego); color: var(--ego); }
+.lbl.hit { border-color: var(--hit); color: var(--hit); font-size: 12px; }
+.lbl.ghost { border-style: dashed; color: var(--ink-3); }
+.lbl.plan { border-color: var(--teal); color: var(--teal); }
+.lbl.err { border-color: var(--ego); color: var(--ego); background: var(--panel); }
+.lbl.state { border-color: var(--purple); color: var(--purple); }
+
+/* rail */
+.rail { position: absolute; left: 16px; top: 16px; bottom: 88px; width: min(420px, calc(100% - 32px)); display: flex; flex-direction: column;
+  background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.rail-head { padding: 16px 20px 10px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: start; }
+.brand { font: italic 500 26px/1.1 var(--f-display); letter-spacing: -.01em; }
+.brand-sub { grid-column: 1 / -1; color: var(--ink-2); font-size: 13px; }
+.theme-btn { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); cursor: pointer; }
+.theme-btn span { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+:root:not([data-theme="dark"]) .theme-btn [data-v="light"], :root[data-theme="dark"] .theme-btn [data-v="dark"] { background: var(--panel-solid); color: var(--ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-btn [data-v="light"] { background: none; color: var(--ink-3); }
+  :root:not([data-theme]) .theme-btn [data-v="dark"] { background: var(--panel-solid); color: var(--ink); } }
+
+
+.body { padding: 14px 20px 18px; overflow-y: auto; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.body > * { flex-shrink: 0; }
+.eyebrow { font: 600 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.body h2 { margin: 0; font: italic 500 23px/1.2 var(--f-display); text-wrap: balance; }
+.body p { margin: 0; color: var(--ink-2); max-width: 62ch; font-size: 14.5px; }
+.body p b { color: var(--ink); font-weight: 600; }
+.try { font-size: 13.5px; border-left: 2px solid var(--ego); padding-left: 10px; color: var(--ink-2); }
+.try b { color: var(--ego); }
+.note { font-size: 12px; color: var(--ink-3); }
+
+.ctl { display: flex; flex-direction: column; gap: 9px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tog { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--ink); }
+.tog input { appearance: none; width: 34px; height: 20px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); position: relative; cursor: pointer; flex: none; transition: background .2s; margin: 0; }
+.tog input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--ink-3); transition: transform .2s, background .2s; }
+.tog input:checked { background: var(--ego); border-color: var(--ego); }
+.tog input:checked::after { transform: translateX(14px); background: var(--panel-solid); }
+.sl { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; font-size: 13.5px; }
+.sl output { font: 600 13px var(--f-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.sl input { grid-column: 1 / -1; width: 100%; accent-color: var(--ego); }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; align-self: flex-start; }
+.seg button { border: 0; background: none; padding: 6px 11px; font-size: 13px; font-weight: 600; color: var(--ink-3); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel-solid); }
+.seg button:disabled { opacity: .4; cursor: not-allowed; }
+.lab { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+.btn { border: 1px solid var(--line); background: var(--chip); border-radius: 9px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn:hover { border-color: var(--ink-3); }
+.btn.primary { background: var(--ego); border-color: var(--ego); color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.chip { border: 1px solid var(--line); background: none; border-radius: 999px; padding: 3px 10px; font: 600 12px var(--f-ui); color: var(--ink-2); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--ego); color: var(--ego); }
+.chip i { font-style: normal; font-family: var(--f-mono); color: var(--ink-3); margin-left: 4px; }
+.read { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; font-size: 13.5px; padding: 10px 12px; background: var(--chip); border-radius: 10px; }
+.read b { font: 600 13px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.read .h { grid-column: 1 / -1; font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.read2 { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 14px; font-size: 13px; padding: 10px 12px; background: var(--chip); border-radius: 10px; }
+.read2 b { font: 600 12.5px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.read2 .h { font: 600 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); text-align: right; }
+.read2 .h:first-child { text-align: left; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: 3px; }
+.legend i.box { width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; }
+.plot { width: 100%; height: auto; aspect-ratio: 380 / 200; background: var(--chip); border-radius: 10px; display: block; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { font: 600 10.5px var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl td { padding: 5px 6px; text-align: right; font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: 12.5px; border-bottom: 1px solid var(--line); }
+.tbl td:first-child { font-family: var(--f-ui); font-weight: 600; font-size: 13px; }
+.tbl tr.sel td { background: var(--chip); }
+.verdict { font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); }
+.insight { font-size: 13.5px; line-height: 1.55; padding: 10px 12px; border-left: 3px solid var(--teal); background: var(--chip); border-radius: 0 10px 10px 0; color: var(--ink-2); }
+.insight b { color: var(--ink); }
+.plot.io { aspect-ratio: 380 / 190; }
+.read2.one { grid-template-columns: 1fr auto; }
+.read2 .na { color: var(--ink-3); font-weight: 400; font-family: var(--f-ui); }
+.navrow { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 6px; }
+
+/* HUD */
+.hud { position: absolute; right: 16px; top: 16px; display: flex; gap: 8px; align-items: stretch; pointer-events: none; }
+.hud > div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 7px 12px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.hud .v { font: 600 22px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.hud .u { font: 600 10.5px var(--f-mono); color: var(--ink-3); letter-spacing: .06em; text-transform: uppercase; }
+.hud .mode { font: 600 12px var(--f-ui); color: var(--ink-2); max-width: 220px; }
+.hud .mode b { color: var(--ego); }
+
+/* transport */
+.bar { position: absolute; left: 452px; right: 16px; bottom: 16px; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; }
+.bar .play { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--ink); color: var(--panel-solid); cursor: pointer; font-size: 14px; flex: none; }
+.bar .tbtn { border: 1px solid var(--line); background: none; border-radius: 8px; height: 32px; padding: 0 10px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--ink-2); flex: none; }
+.scrub { flex: 1 1 auto; min-width: 60px; position: relative; height: 34px; display: flex; align-items: center; }
+.scrub input { width: 100%; accent-color: var(--ego); position: relative; z-index: 1; }
+.scrub .ticks { position: absolute; left: 8px; right: 8px; top: 0; height: 9px; pointer-events: none; }
+.scrub .ticks i { position: absolute; top: 0; width: 2px; height: 9px; border-radius: 1px; transform: translateX(-1px); }
+.tread { font: 600 13px var(--f-mono); font-variant-numeric: tabular-nums; min-width: 66px; text-align: right; flex: none; }
+.toast { position: absolute; left: 50%; top: 84px; transform: translateX(-50%); padding: 8px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+  background: var(--panel-solid); border: 1px solid var(--hit); color: var(--hit); max-width: min(560px, 70%); text-align: center; z-index: 5; }
+
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100%; display: flex; flex-direction: column; }
+  #stage { position: relative; height: 56vh; min-height: 320px; flex: none; order: 1; }
+  .hud { top: 10px; right: 10px; transform: scale(.8); transform-origin: top right; z-index: 2; }
+  .hud .mode { display: none; }
+  .toast { top: 70px; max-width: 90%; }
+  .bar { position: relative; left: auto; right: auto; bottom: auto; margin: 10px 16px 0; height: 52px; order: 2; }
+  .rail { position: relative; left: auto; top: auto; bottom: auto; width: auto; margin: 10px 16px 16px; order: 3; }
+  .body { overflow: visible; }
+  .bar .tbtn.cam { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .tog input, .tog input::after { transition: none; } }
+</style>
+
+<div class="app" id="app">
+  <div id="stage" aria-label="Mô phỏng 3D: một đoạn phố, xe đỏ là xe ta do model của bài lab lái. Kéo để xoay, cuộn để phóng to."><div id="labels"></div></div>
+  <div class="hud" aria-live="off">
+    <div><div class="v" id="hudV">0</div><div class="u">km/h · xe ta</div></div>
+    <div class="mode" id="hudMode">Bài lab</div>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+
+  <aside class="rail" aria-label="Các chương">
+    <div class="rail-head">
+      <div class="brand">Bài lab Day 12</div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi nền sáng hoặc tối"><span data-v="light">Sáng</span><span data-v="dark">Tối</span></button>
+      <div class="brand-sub">Các model của bài lab lái trong cùng một đoạn phố: so vòng hở với vòng kín, xe sau phát lại với phản ứng, rồi đọc cổng phát hành.</div>
+    </div>
+    <div class="body" id="body"></div>
+  </aside>
+
+  <div class="bar" role="group" aria-label="Điều khiển thời gian">
+    <button class="play" id="play" type="button" aria-label="Chạy hoặc dừng">❚❚</button>
+    <button class="tbtn" id="restart" type="button" aria-label="Chạy lại từ đầu">↺</button>
+    <button class="tbtn" id="speed" type="button" aria-label="Tốc độ phát">1×</button>
+    <div class="scrub"><div class="ticks" id="ticks"></div><input id="time" type="range" min="0" max="14" step="0.05" value="0" aria-label="Thời gian mô phỏng"></div>
+    <div class="tread" id="tread">0,0 s</div>
+    <button class="tbtn cam" id="camBtn" type="button">theo xe</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="lab_models.js"></script>
+<script src="lab_data.js"></script>
+<script src="sim.js"></script>
+<script src="app.js"></script>
+
+</body></html>

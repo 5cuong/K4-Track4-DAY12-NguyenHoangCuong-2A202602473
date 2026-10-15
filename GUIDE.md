@@ -168,6 +168,25 @@ Câu hỏi gợi ý (→ câu 7 tiếp):
 
 ---
 
+## Bước 8 · Xem model của bạn lái (không bắt buộc, không chấm)
+
+Sau bước 7, nhìn các model lái trong 3D giúp bạn hiểu *vì sao* các con số như vậy. Không cần viết mã.
+
+```bash
+python3 scripts/export_viz.py        # xuất model và kết quả CỦA BẠN (nó báo rõ nếu thiếu bước nào)
+python3 viz/serve.py                 # mở http://localhost:8765
+```
+
+Việc nên thử (đối chiếu với câu 4, 5, 6, 7 của báo cáo):
+- **Xe dẫn phanh gấp:** kéo mức phanh 3 → 9 m/s². EgoMLP đâm từ mức nào, và ở bao nhiêu seed? Vì sao PercMLP khác?
+- **Xe cắt vào:** tăng tốc độ tiến gần. PercMLP bắt đầu đâm ở đâu, và PercMLP+ cải thiện đến đâu? So với vùng "log chưa từng có" bạn thấy ở bước 2.
+- **Xe sau "phát lại":** bộ điều khiển nào bị "đâm giả" từ phía sau, và vì sao đó không phải lỗi của nó?
+- **Chạy cả log:** bộ nào đâm nhiều log nhất, và điều này khớp hay lệch với bảng vòng kín của bạn?
+
+Mô phỏng 3D có vật lý riêng và ít kịch bản hơn bài lab, nên **không so số trực tiếp** với `evidence/`; chỉ cần hình dạng kết quả khớp. Các file `viz/index.html`, `viz/app.js`, `viz/sim.js` là của giảng viên, đừng sửa.
+
+---
+
 ## Hoàn thành
 
 ```bash

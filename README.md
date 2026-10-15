@@ -71,6 +71,17 @@ Mỗi bước in ra màn hình và ghi bằng chứng vào `evidence/*.json` (k�
 
 Hướng dẫn từng bước, gợi ý và "dấu hiệu đúng" ở [`GUIDE.md`](GUIDE.md).
 
+## Xem model của bạn lái trong mô phỏng 3D (không bắt buộc, không chấm)
+
+Khi đã xong bước 7, bạn có thể xem chính các model bạn huấn luyện lái trong một đoạn phố 3D, thử các cảnh xe dẫn phanh gấp, xe cắt vào, log thật, và đổi xe sau giữa "phát lại" và "phản ứng":
+
+```bash
+python3 scripts/export_viz.py        # xuất model và kết quả của bạn sang viz/
+python3 viz/serve.py                 # rồi mở http://localhost:8765
+```
+
+Cần chạy trên máy cá nhân (không dùng được trên Colab) và có internet. Chi tiết, gợi ý quan sát ở [`viz/README.md`](viz/README.md) và `GUIDE.md` (Bước 8). Mô phỏng này chỉ để bạn *nhìn* ra điều các con số nói; báo cáo vẫn phải dùng số trong `evidence/`.
+
 ## Nộp bài
 
 1. Điền [`REPORT.md`](REPORT.md): họ tên, MSSV, GitHub, 8 câu hỏi (mỗi câu 4–8 dòng, **dẫn số của chính bạn**).
@@ -97,6 +108,7 @@ Mở [`lab12_colab.ipynb`](lab12_colab.ipynb) (hoặc làm tay: tải thư mục
 |---|---|
 | `NotImplementedError: TODO ...` | Hàm đó là việc của bạn: xem docstring và gợi ý trong hàm, rồi `GUIDE.md`. |
 | Tải dữ liệu bị đứng hoặc lỗi mạng | Chạy lại `python3 run_all.py data` (tải lại từ đầu, không hỏng file). Kiểm tra kích thước file `data/argoverse_step3.csv` ≈ 195 MB. |
+| `export_viz: ... not found` | Bạn chưa chạy bước mà thông báo nêu (nó chỉ đúng bước cần chạy). |
 | `FileNotFoundError: evidence/...json` | Bạn chạy bước sau khi chưa chạy bước trước. Chạy theo thứ tự trong bảng trên. |
 | Bước `fix` quá lâu | Dùng `--seeds 3`. Bước này huấn luyện lại mô hình nhiều lần (khoảng 2,5 phút với 5 seed trên laptop). |
 | Số khác với bạn cùng lớp | Đúng như thiết kế: mỗi MSSV một bộ số. Hình dạng kết quả giống nhau, con số thì không. |

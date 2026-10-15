@@ -139,10 +139,15 @@ def check_git():
         return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True)
     r = git("rev-parse", "--is-inside-work-tree")
     if r.returncode != 0:
-        say("WARN", "not inside a git repository: cannot check commits (you must submit through a public GitHub repo)")
+        say("WARN", "not inside a git repository: cannot check commits (you must submit through your own public GitHub repo)")
         return
-    n = int(git("rev-list", "--count", "HEAD").stdout.strip() or 0)
-    ok(n >= 5, f"git: {n} commits (>= 5 expected, spread over the steps)")
+    # a fork or clone carries the starter's commits (written by the instructor): count only yours.
+    emails = git("log", "--format=%ae").stdout.split()
+    roots = git("rev-list", "--max-parents=0", "HEAD").stdout.split()
+    root_email = git("log", "--format=%ae", "-1", roots[-1]).stdout.strip() if roots else ""
+    own = [e for e in emails if e != root_email]
+    n = len(own) if own else len(emails)           # a repo you started from scratch has no starter commits
+    ok(n >= 5, f"git: {n} commits of yours (>= 5 expected, spread over the steps)")
     files = git("ls-files").stdout.splitlines()
     bad = [f for f in files if "/work/" in "/" + f or f.startswith("work/") or re.search(r"(^|/)data/.+\.(csv|zip)$", f)]
     ok(not bad, "git: no raw data or work/ files are tracked" + (f" (found {bad[:3]})" if bad else ""))

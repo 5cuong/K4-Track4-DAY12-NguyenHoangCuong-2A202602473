@@ -27,22 +27,31 @@ Bạn là kỹ sư kiểm thử. **Có nên phát hành bản mới không?** C�
 
 ## Bắt đầu (5 phút)
 
+Đây là bài **cá nhân**: bạn lấy bộ khung về, làm trên máy của bạn, rồi đẩy mã và báo cáo lên **repo GitHub của chính bạn**. Có hai cách lấy bộ khung, chọn một.
+
+**Cách 1 · Fork (khuyên dùng).** Bấm **Fork** ở trang repo của lớp để có bản của bạn, rồi clone bản fork đó:
+
+```bash
+git clone https://github.com/<tài-khoản-của-bạn>/K4-Track4-Replay-CloseOpenLoop.git
+cd K4-Track4-Replay-CloseOpenLoop
+```
+
+**Cách 2 · Clone repo của lớp, rồi đổi nơi đẩy lên.** Tạo một repo **Public** rỗng trên GitHub của bạn, rồi:
+
 ```bash
 git clone https://github.com/VinUni-AI20k/K4-Track4-Replay-CloseOpenLoop.git
 cd K4-Track4-Replay-CloseOpenLoop
-pip install -r requirements.txt
-python3 run_all.py data                  # tải và kiểm tra dữ liệu (bước 0, không cần viết mã)
-python3 -m unittest discover -s tests    # lúc đầu 13 kiểm thử LỖI: đó là 10 hàm bạn phải cài
-```
-
-**Nộp bài vào repo của chính bạn, không đẩy lên repo của lớp.** Tạo một repo **công khai** rỗng trên GitHub của bạn, rồi trỏ thư mục này sang đó (làm một lần, trước khi commit):
-
-```bash
 git remote set-url origin https://github.com/<tài-khoản-của-bạn>/<tên-repo-của-bạn>.git
 git push -u origin main
 ```
 
-(Không dùng nút Fork: bản fork của một repo riêng tư cũng riêng tư, giảng viên và bạn bè không xem được.)
+Dù chọn cách nào, bạn chỉ `push` lên repo **của bạn**, không `push` lên repo của lớp. Sau đó:
+
+```bash
+pip install -r requirements.txt
+python3 run_all.py data                  # tải và kiểm tra dữ liệu (bước 0, không cần viết mã)
+python3 -m unittest discover -s tests    # lúc đầu 13 kiểm thử LỖI: đó là 10 hàm bạn phải cài
+```
 
 Bạn sẽ viết **10 hàm** đánh dấu `TODO` (tìm bằng `grep -rn "NotImplementedError" lab12/`). Mỗi hàm có docstring mô tả đúng đầu vào, đầu ra và một gợi ý. Mọi thứ còn lại (mô phỏng, mạng MLP, tải dữ liệu, vẽ hình) đã có sẵn.
 
@@ -87,7 +96,8 @@ Cần chạy trên máy cá nhân (không dùng được trên Colab) và có in
 1. Điền [`REPORT.md`](REPORT.md): họ tên, MSSV, GitHub, 8 câu hỏi (mỗi câu 4–8 dòng, **dẫn số của chính bạn**).
 2. Chạy lại toàn bộ với **MSSV thật** (không phải `demo`) và **không** dùng `--quick`.
 3. `python3 scripts/check_submission.py` phải không còn dòng `[FAIL]` (thêm `--save-verify` để lưu `evidence/verify.txt`).
-4. Commit và push lên **repo GitHub công khai**: mã, `evidence/`, `REPORT.md`. Ít nhất 5 commit trải qua các bước. Không commit `data/`, `work/`.
+4. `commit` và `push` lên **repo GitHub của bạn** (bản fork hoặc repo riêng), đặt chế độ **Public** để giảng viên xem được: mã (10 hàm bạn đã cài), `evidence/` và `REPORT.md`. Ít nhất **5 commit của bạn**, trải qua các bước. Không commit `data/`, `work/`.
+5. Link repo của bạn là bài nộp: gửi theo kênh lớp quy định.
 
 Thang điểm ở [`RUBRIC.md`](RUBRIC.md).
 

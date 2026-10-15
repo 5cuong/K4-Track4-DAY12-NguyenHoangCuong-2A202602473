@@ -1,6 +1,6 @@
 # Thang điểm Lab Day 12 (100 điểm)
 
-> Bài cá nhân, nộp qua **repo GitHub công khai**. Bạn **cài 10 hàm**, **chạy** đường ống, **đọc bằng chứng** và **giải thích**. Xem [`README.md`](README.md) và [`GUIDE.md`](GUIDE.md).
+> Bài cá nhân, nộp qua **repo GitHub công khai của bạn** (bản fork hoặc repo riêng). Bạn **cài 10 hàm**, **chạy** đường ống, **đọc bằng chứng** và **giải thích**. Xem [`README.md`](README.md) và [`GUIDE.md`](GUIDE.md).
 
 ## Cách chấm
 
@@ -50,7 +50,7 @@ Mỗi câu 5 điểm: **đúng bản chất**, **dẫn số của chính bạn**
 
 ## D. Git và trình bày (10 điểm)
 
-Ít nhất **5 commit** trải qua nhiều bước; repo **công khai** và sạch (không `data/`, không `work/`); `python3 scripts/check_submission.py` không còn `[FAIL]`: **10 điểm**. Mỗi mục `[FAIL]` còn lại trừ 1 điểm (tối đa −10).
+Ít nhất **5 commit của bạn** (không tính các commit có sẵn từ bộ khung) trải qua nhiều bước; repo của bạn **công khai** và sạch (không `data/`, không `work/`); `python3 scripts/check_submission.py` không còn `[FAIL]`: **10 điểm**. Mỗi mục `[FAIL]` còn lại trừ 1 điểm (tối đa −10).
 
 ## Lỗi bị trừ điểm
 

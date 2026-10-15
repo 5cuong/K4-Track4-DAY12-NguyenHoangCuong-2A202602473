@@ -194,4 +194,4 @@ python3 run_all.py --student-id <MSSV>        # chạy lại toàn bộ lần cu
 python3 scripts/check_submission.py --save-verify
 ```
 
-Điền `REPORT.md`, commit, push. Câu 8 (bài lab này **không** chứng minh được gì) cần bạn tự nghĩ: gợi ý đọc lại phần "Giới hạn" ở `README.md` rồi chọn những giới hạn **quan trọng nhất** với việc quyết định phát hành, kèm lý do.
+Điền `REPORT.md`, rồi `commit` và `push` lên repo GitHub **của bạn** (fork hoặc repo riêng, đặt chế độ Public) như mục "Nộp bài" trong `README.md`. Câu 8 (bài lab này **không** chứng minh được gì) cần bạn tự nghĩ: gợi ý đọc lại phần "Giới hạn" ở `README.md` rồi chọn những giới hạn **quan trọng nhất** với việc quyết định phát hành, kèm lý do.

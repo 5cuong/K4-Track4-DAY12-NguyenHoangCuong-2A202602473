@@ -20,18 +20,25 @@ def rule_closed_loop_logs(c, b, margin=0.01):
     """R2. Non-inferiority on the held-out logs. c, b: the candidate's and the baseline's entry of closedloop.json["logs"]
     (each has ["collision"] = {"rate", "ci95": [low, high], ...}; for a learned planner the entry is its WORST seed).
     Pass when the candidate's UPPER 95 % bound is <= baseline rate + margin. Returns (passed: bool, detail: str)."""
-    # TODO (Bước 6): hãy tự cài hàm này. Gợi ý:
-    #   Quy tắc không-kém-hơn: pass khi CẬN TRÊN 95% của ứng viên <= tỷ lệ va chạm của baseline + margin.
-    #   Trả (ok, chuỗi mô tả) với chuỗi nêu số của cả hai bên.
-    raise NotImplementedError("TODO rule_closed_loop_logs: xem GUIDE.md, Bước 6")
+    candidate_upper = float(c["collision"]["ci95"][1])
+    baseline_rate = float(b["collision"]["rate"])
+    limit = baseline_rate + margin
+    passed = candidate_upper <= limit
+    detail = (f"candidate upper 95% CI {candidate_upper * 100:.2f}% <= "
+              f"baseline rate {baseline_rate * 100:.2f}% + margin {margin * 100:.2f}% "
+              f"(limit {limit * 100:.2f}%): {'pass' if passed else 'fail'}")
+    return bool(passed), detail
 
 
 def rule_scenario_grid(area_candidate, area_baseline, margin=0.02):
     """R4. Both areas are the share of the cut-in grid where contact was avoidable but happened (0..1), worst seed.
     Pass when candidate <= baseline + margin. Returns (passed: bool, detail: str)."""
-    # TODO (Bước 6): hãy tự cài hàm này. Gợi ý:
-    #   pass khi diện tích của ứng viên <= diện tích của baseline + margin. Trả (ok, chuỗi mô tả).
-    raise NotImplementedError("TODO rule_scenario_grid: xem GUIDE.md, Bước 6")
+    limit = float(area_baseline) + margin
+    passed = float(area_candidate) <= limit
+    detail = (f"candidate attributable area {float(area_candidate) * 100:.2f}% <= "
+              f"baseline {float(area_baseline) * 100:.2f}% + margin {margin * 100:.2f}% "
+              f"(limit {limit * 100:.2f}%): {'pass' if passed else 'fail'}")
+    return bool(passed), detail
 
 
 def evaluate(candidate, baseline, ev):
